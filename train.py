@@ -8,9 +8,9 @@ import numpy as np
 img_size = 224
 
 mode = 'bbs' # [bbs, lmks]
-if mode is 'bbs':
+if mode == 'bbs':
   output_size = 4
-elif mode is 'lmks':
+elif mode == 'lmks':
   output_size = 18
 
 start_time = datetime.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
