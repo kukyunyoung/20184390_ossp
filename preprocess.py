@@ -47,5 +47,3 @@ for i in range(7):
     # cv2.imshow('img', img)
     # if cv2.waitKey(0) == ord('q'):
     #   break
-
-  np.save('dataset/%s.npy' % dirname, np.array(dataset))
