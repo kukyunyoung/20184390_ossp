@@ -76,7 +76,7 @@ print('model training start!')
 model.compile(optimizer=keras.optimizers.Adam(), loss='mse')
 
 # 학습시간이 너무길어 epochs=50 -> 5로 변경
-model.fit(x_train, y_train, epochs=5, batch_size=32, shuffle=True,
+model.fit(x_train, y_train, epochs=2, batch_size=32, shuffle=True,
   validation_data=(x_test, y_test), verbose=1,
   callbacks=[
     TensorBoard(log_dir='logs/%s' % (start_time)),
