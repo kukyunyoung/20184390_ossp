@@ -1,6 +1,8 @@
 import sys, cv2, os
 from keras.models import load_model
 import numpy as np
+import matplotlib.pyplot as plt
+import PIL
 
 from helper import resize, test
 
@@ -89,6 +91,10 @@ for f in file_list:
                                          int(glasses_size), int(glasses.shape[0] * glasses_size / glasses.shape[1])))
     except:
         print('failed overlay image')
+
+    # wearing glasses의 ori_lmks[0], ori_lmks[1] 을 이용하여 눈의 랜드마크 점을 찾을 수 있음.
+    # ori_lmks[0]-10, ori_lmks[0]+10 같은 방식으로 눈의 범위를 지정?
+    
 
     cv2.imshow('img', ori_img)
     cv2.imshow('result', result_img)
