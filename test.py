@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import PIL
 
 from helper import resize, test
+from sklearn.cluster import KMeans
+from collections import Counter
 
 img_size = 224
 base_path = 'samples'
@@ -19,6 +21,16 @@ print('model load start')
 
 bbs_model = load_model('models/bbs_1.h5')
 lmks_model = load_model('models/lmks_1.h5')
+
+# 두 이미지를 비교하여 보여줄 helper 함수
+def show_img_compar(img_1, img_2):
+    f, ax = plt.subplots(1,2,figsize=(10,10))
+    ax[0].imshow(img_1)
+    ax[1].imshow(img_2)
+    ax[0].axis('off')
+    ax[1].axis('off')
+    f.tight_layout()
+    plt.show()
 
 print('model load finish')
 print('testing start')
@@ -95,6 +107,56 @@ for f in file_list:
     # wearing glasses의 ori_lmks[0], ori_lmks[1] 을 이용하여 눈의 랜드마크 점을 찾을 수 있음.
     # ori_lmks[0]-10, ori_lmks[0]+10 같은 방식으로 눈의 범위를 지정?
     
+    #####################################
+    # 고양이 사진을 가져와서 랜드마크점을 이용하여 눈주위 식별 및 색판별
+    pure_img = img.copy() # 원래이미지 가져오기
+    pure_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # bgr 에서 rgb로 바꿔줌
+    dim = (500,300)
+    pure_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+
+    clt = KMeans(n_clusters=5) # n_cluster 조정해서 추출할 색상군의 수를 정할 수 있음 (너무많은 색상군이 검출되면 응용할 것)
+    clt.fit(pure_img.reshape(-1,3))
+    print("clt.labels_ \n")
+    clt.labels_
+    print("clt.cluster_centers_ \n")
+    clt.cluster_centers_
+
+    def palette(clusters):
+        width=300
+        palette = np.zeros((50,width,3), np.uint8)
+        steps = width/clusters.cluster_centers_.shape[0]
+        for idx, centers in enumerate(clusters.cluster_centers_):
+            palette[:, int(idx*steps):(int((idx+1)*steps)), :] = centers
+        return palette
+    
+    clt_1 = clt.fit(pure_img.reshape(-1,3))
+    show_img_compar(pure_img, palette(clt_1))
+
+    def palette_perc(k_cluster):
+        width=300
+        palette = np.zeros((50,width, 3), np.uint8)
+
+        n_pixels = len(k_cluster.labels_)
+        counter = Counter(k_cluster.labels_)
+        perc = {}
+        for i in counter:
+            perc[i] = np.round(counter[i]/n_pixels, 2)
+        perc = dict(sorted(perc.items()))
+
+        print(perc)
+        print(k_cluster.cluster_centers_)
+
+        step = 0
+
+        for idx, centers in enumerate(k_cluster.cluster_centers_):
+            palette[:,step:int(step+perc[idx]*width+1),:] = centers
+            step += int(perc[idx]*width+1)
+        
+        return palette
+    
+    clt_1 = clt.fit(pure_img.reshape(-1,3))
+    show_img_compar(pure_img, palette_perc(clt_1))
+    ######################################
 
     cv2.imshow('img', ori_img)
     cv2.imshow('result', result_img)
