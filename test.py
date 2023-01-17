@@ -115,7 +115,6 @@ for f in file_list:
     # 고양이의 눈동자 부분을 잘라서 활용해줄 수 있게 작업해주는 부분
     #crop_img = ori_img[y:y+h , x:x+w] 포맷
     #crop_img = ori_img[ori_lmks[0][0]-10:ori_lmks[0][1]+40, ori_lmks[0][0]-30:ori_lmks[0][1]+20]
-    p1=np.array([20,20])
     lefteye_crop_img = ori_img[ori_lmks[0][1]-20:ori_lmks[0][1]+40, ori_lmks[0][0]-20:ori_lmks[0][0]+20] # 왼쪽눈 크롭
     righteye_crop_img = ori_img[ori_lmks[1][1]-20:ori_lmks[1][1]+40, ori_lmks[1][0]-20:ori_lmks[1][0]+30] # 오른쪽눈 크롭
 
