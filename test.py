@@ -114,7 +114,6 @@ for f in file_list:
     #####################################
     # 고양이의 눈동자 부분을 잘라서 활용해줄 수 있게 작업해주는 부분
     #crop_img = ori_img[y:y+h , x:x+w] 포맷
-    #crop_img = ori_img[ori_lmks[0][0]-10:ori_lmks[0][1]+40, ori_lmks[0][0]-30:ori_lmks[0][1]+20]
     lefteye_crop_img = ori_img[ori_lmks[0][1]-20:ori_lmks[0][1]+40, ori_lmks[0][0]-20:ori_lmks[0][0]+20] # 왼쪽눈 크롭
     righteye_crop_img = ori_img[ori_lmks[1][1]-20:ori_lmks[1][1]+40, ori_lmks[1][0]-20:ori_lmks[1][0]+30] # 오른쪽눈 크롭
 
@@ -142,18 +141,6 @@ for f in file_list:
     clt.labels_
     print("clt.cluster_centers_ \n")
     clt.cluster_centers_
-
-    # 팔레트를 보여주는 함수 (구성하는 색만 보여줌)
-    '''def palette(clusters):
-        width=300
-        palette = np.zeros((50,width,3), np.uint8)
-        steps = width/clusters.cluster_centers_.shape[0]
-        for idx, centers in enumerate(clusters.cluster_centers_):
-            palette[:, int(idx*steps):(int((idx+1)*steps)), :] = centers
-        return palette
-    
-    clt_1 = clt.fit(pure_img.reshape(-1,3))
-    show_img_compar(pure_img, palette(clt_1))'''
 
     # 팔레트를 보여주는 함수 (구성하는 색 뿐만 아니라 구성하는 색의 비율까지 보여줌)
     def palette_perc(k_cluster):
