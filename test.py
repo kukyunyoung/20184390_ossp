@@ -3,6 +3,7 @@ from keras.models import load_model
 import numpy as np
 import matplotlib.pyplot as plt
 import PIL
+import matplotlib.image as mpimg
 
 from helper import resize, test
 from sklearn.cluster import KMeans
@@ -166,9 +167,17 @@ for f in file_list:
         return palette
     
     clt_left = clt.fit(lefteye_img.reshape(-1,3))
-    show_img_compar(lefteye_img, palette_perc(clt_left))
+    #show_img_compar(lefteye_img, palette_perc(clt_left))
     clt_right = clt.fit(righteye_img.reshape(-1,3))
-    show_img_compar(righteye_img, palette_perc(clt_right))
+    #show_img_compar(righteye_img, palette_perc(clt_right))
+
+    palette_left = palette_perc(clt_left)
+    palette_right = palette_perc(clt_right)
+
+    cv2.imshow('lefteye', cv2.cvtColor(lefteye_img, cv2.COLOR_BGR2RGB))
+    cv2.imshow('lefteye palette', cv2.cvtColor(righteye_img, cv2.COLOR_BGR2RGB))
+    cv2.imshow('righteye', cv2.cvtColor(palette_left, cv2.COLOR_BGR2RGB))
+    cv2.imshow('righteye palette', cv2.cvtColor(palette_right, cv2.COLOR_BGR2RGB))
     ######################################
 
     if cv2.waitKey(0) == ord('q'):
