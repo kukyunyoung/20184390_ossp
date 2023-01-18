@@ -112,64 +112,52 @@ for f in file_list:
     cv2.imwrite('result/%s_lmks%s' % (filename, ext), ori_img)
     cv2.imwrite('result/%s_result%s' % (filename, ext), result_img)
     
+
     #####################################
     # 고양이의 눈동자 부분을 잘라서 활용해줄 수 있게 작업해주는 부분
-    #crop_img = ori_img[y:y+h , x:x+w] 포맷
+    #crop_img = ori_img[y:y+h , x:x+w] 크롭 코드 포맷
     lefteye_crop_img = ori_img[ori_lmks[0][1]-20:ori_lmks[0][1]+40, ori_lmks[0][0]-20:ori_lmks[0][0]+20] # 왼쪽눈 크롭
     righteye_crop_img = ori_img[ori_lmks[1][1]-20:ori_lmks[1][1]+40, ori_lmks[1][0]-20:ori_lmks[1][0]+30] # 오른쪽눈 크롭
 
     # 고양이 사진을 가져와서 랜드마크점을 이용하여 눈주위 식별 및 색판별
-    lefteye_img = lefteye_crop_img.copy() # 원래이미지 가져오기
-    lefteye_img = cv2.cvtColor(lefteye_img, cv2.COLOR_BGR2RGB) # bgr 에서 rgb로 바꿔줌
+    lefteye_img = lefteye_crop_img.copy() # 왼쪽눈 크롭 이미지 가져오기
+    lefteye_img = cv2.cvtColor(lefteye_img, cv2.COLOR_BGR2RGB) # opencv 에서는 bgr이 디폴트, bgr 에서 rgb로 바꿔줌
     dim = (500,300)
-    lefteye_img = cv2.resize(lefteye_img, dim, interpolation=cv2.INTER_AREA)
+    lefteye_img = cv2.resize(lefteye_img, dim, interpolation=cv2.INTER_AREA) # interpolation=cv2.INTER_AREA << 영상을 축소할때 이용
 
     clt = KMeans(n_clusters=5) # n_cluster 조정해서 추출할 색상군의 수를 정할 수 있음 (너무많은 색상군이 검출되면 응용할 것)
     clt.fit(lefteye_img.reshape(-1,3))
-    print("clt.labels_ \n")
-    clt.labels_
-    print("clt.cluster_centers_ \n")
-    clt.cluster_centers_
 
-    righteye_img = righteye_crop_img.copy() # 원래이미지 가져오기
-    righteye_img = cv2.cvtColor(righteye_img, cv2.COLOR_BGR2RGB) # bgr 에서 rgb로 바꿔줌
+    righteye_img = righteye_crop_img.copy() # 오른쪽눈 크롭 이미지 가져오기
+    righteye_img = cv2.cvtColor(righteye_img, cv2.COLOR_BGR2RGB) # opencv 에서는 bgr이 디폴트, bgr 에서 rgb로 바꿔줌
     dim = (500,300)
-    righteye_img = cv2.resize(righteye_img, dim, interpolation=cv2.INTER_AREA)
+    righteye_img = cv2.resize(righteye_img, dim, interpolation=cv2.INTER_AREA) # interpolation=cv2.INTER_AREA << 영상을 축소할때 이용
 
     clt = KMeans(n_clusters=5) # n_cluster 조정해서 추출할 색상군의 수를 정할 수 있음 (너무많은 색상군이 검출되면 응용할 것)
     clt.fit(righteye_img.reshape(-1,3))
-    print("clt.labels_ \n")
-    clt.labels_
-    print("clt.cluster_centers_ \n")
-    clt.cluster_centers_
 
     # 팔레트를 보여주는 함수 (구성하는 색 뿐만 아니라 구성하는 색의 비율까지 보여줌)
     def palette_perc(k_cluster):
         width=300
-        palette = np.zeros((50,width, 3), np.uint8)
+        palette = np.zeros((50,width, 3), np.uint8) # 50,300,3의 array를 0으로 초기화해서 생성
 
-        n_pixels = len(k_cluster.labels_)
+        n_pixels = len(k_cluster.labels_) # k_cluster의 크기만큼 팔레트수 정함
         counter = Counter(k_cluster.labels_)
         perc = {}
         for i in counter:
-            perc[i] = np.round(counter[i]/n_pixels, 2)
-        perc = dict(sorted(perc.items()))
-
-        print(perc)
-        print(k_cluster.cluster_centers_)
+            perc[i] = np.round(counter[i]/n_pixels, 2) # np.round(a,2)는 a를 소수 둘째자리까지 반올림함, 각 픽셀의 색을 팔레트에 나열
+        perc = dict(sorted(perc.items())) # 팔레트에 나열해놓은 색을 정렬
 
         step = 0
 
-        for idx, centers in enumerate(k_cluster.cluster_centers_):
-            palette[:,step:int(step+perc[idx]*width+1),:] = centers
-            step += int(perc[idx]*width+1)
+        for idx, centers in enumerate(k_cluster.cluster_centers_): # enumrate()로 k_cluster array를 접근
+            palette[:,step:int(step+perc[idx]*width+1),:] = centers # 순서대로 팔레트에 색 기록
+            step += int(perc[idx]*width+1) 
         
         return palette
     
     clt_left = clt.fit(lefteye_img.reshape(-1,3))
-    #show_img_compar(lefteye_img, palette_perc(clt_left))
     clt_right = clt.fit(righteye_img.reshape(-1,3))
-    #show_img_compar(righteye_img, palette_perc(clt_right))
 
     palette_left = palette_perc(clt_left)
     palette_right = palette_perc(clt_right)
